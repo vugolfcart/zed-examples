@@ -1,6 +1,7 @@
-SET(execName ZED_SVO_Playback)
+SET(playback ZED_SVO_Playback)
+SET(convert ZED_to_mp4)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
-PROJECT(${execName})
+PROJECT(${playback})
 
 if(COMMAND cmake_policy)
 	cmake_policy(SET CMP0003 OLD)
@@ -13,10 +14,10 @@ find_package(ZED 2 REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(CUDA ${ZED_CUDA_VERSION} EXACT REQUIRED)
 
-IF(NOT WIN32) 
+IF(NOT WIN32)
     SET(SPECIAL_OS_LIBS "pthread" "X11")
 ENDIF()
- 
+
 include_directories(${CUDA_INCLUDE_DIRS})
 include_directories(${ZED_INCLUDE_DIRS})
 include_directories(${OpenCV_INCLUDE_DIRS})
@@ -26,11 +27,20 @@ link_directories(${ZED_LIBRARY_DIR})
 link_directories(${CUDA_LIBRARY_DIRS})
 link_directories(${OpenCV_LIBRARY_DIRS})
 
-ADD_EXECUTABLE(${execName} include/utils.hpp src/main.cpp)
+ADD_EXECUTABLE(${playback} include/utils.hpp src/main.cpp)
+add_definitions(-std=c++11 -g -O3)
+
+ADD_EXECUTABLE(${convert} include/utils.hpp src/video.cpp)
 add_definitions(-std=c++11 -g -O3)
 
 # Add the required libraries for linking:
-TARGET_LINK_LIBRARIES(${execName}
+TARGET_LINK_LIBRARIES(${playback}
+                        ${ZED_LIBRARIES}
+                        ${SPECIAL_OS_LIBS}
+                        ${OpenCV_LIBS}
+                        ${CUDA_LIBRARIES} ${CUDA_npps_LIBRARY} ${CUDA_NPP_LIBRARIES_ZED} )
+# Add the required libraries for linking:
+TARGET_LINK_LIBRARIES(${convert}
                         ${ZED_LIBRARIES}
                         ${SPECIAL_OS_LIBS}
                         ${OpenCV_LIBS}
